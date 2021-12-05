@@ -111,7 +111,10 @@ namespace KyoshinMonitor_EEW_Observer_REV_2
 
             try
             {
-                var url = $"http://localhost:8000/v1/info.php"; //強震モニタURLの指定
+                var url = Properties.Settings.Default.kpapi_endpoint.TrimEnd('/') + "/v1/info"; //強震モニターAPI ProxyのURL指定
+
+                // For debug
+                url += ".php";
 
                 var api = await EewHttpClient.GetAsync(url);
 
@@ -156,7 +159,6 @@ namespace KyoshinMonitor_EEW_Observer_REV_2
             }
 
         OnEnd:
-
             label2.Text = dt.ToString("yyyy/MM/dd HH:mm:ss");
             return;
 

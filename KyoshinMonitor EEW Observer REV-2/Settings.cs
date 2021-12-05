@@ -24,6 +24,7 @@ namespace KyoshinMonitor_EEW_Observer_REV_2
         {
             Properties.Settings.Default.monit_url = comboBox1.SelectedIndex;
             Properties.Settings.Default.monit_url2 = comboBox2.SelectedIndex;
+            Properties.Settings.Default.kpapi_endpoint = tbox_kpapi_endpoint.Text;
             this.Close();
         }
 
@@ -36,6 +37,7 @@ namespace KyoshinMonitor_EEW_Observer_REV_2
         {
             comboBox1.SelectedIndex = Properties.Settings.Default.monit_url;
             comboBox2.SelectedIndex = Properties.Settings.Default.monit_url2;
+            tbox_kpapi_endpoint.Text = Properties.Settings.Default.kpapi_endpoint;
         }
 
         private void button4_Click(object sender, EventArgs e)
