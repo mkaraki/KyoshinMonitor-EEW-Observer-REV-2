@@ -107,31 +107,31 @@ namespace KyoshinMonitor_EEW_Observer_REV_2
 
         private async void timer1_Tick(object sender, EventArgs e)
         {
-            //EEW部分
             DateTime dt = DateTime.Now; //現在時刻の取得(PC時刻より)
-            var tm = dt.AddSeconds(-2); //現在時刻から2秒引く(取得失敗を防ぐため)
-            var time = tm.ToString("yyyyMMddHHmmss"); //時刻形式の指定(西暦/月/日/時/分/秒)
 
             try
             {
-                var url = $"http://www.kmoni.bosai.go.jp/webservice/hypo/eew/{time}.json"; //強震モニタURLの指定
+                var url = $"http://localhost:8000/v1/info.php"; //強震モニタURLの指定
 
-                var json = await EewHttpClient.GetStringAsync(url); //awaitを用いた非同期JSON取得
+                var api = await EewHttpClient.GetAsync(url);
+
+                if (api.StatusCode != System.Net.HttpStatusCode.OK)
+                    goto OnEnd;
+
+                var json = await api.Content.ReadAsStringAsync(); //awaitを用いた非同期JSON取得
                 var eew = JsonConvert.DeserializeObject<EEW>(json);//EEWクラスを用いてJSONを解析(デシリアライズ)
-                string reg = eew.region_name;           // 地域
-                string intn = eew.calcintensity;        // 震度
-                bool end_flg = eew.is_final == "true";  // 最終報
-                string al_flg = eew.alertflg;           // アラートタイプ (予報、警報)
-                var eew_flg = eew.result.message; //EEW発表の有無
+                string reg = eew.region;           // 地域
+                string intn = eew.japanese_intensity.ToString();        // 震度
+                bool end_flg = eew.is_final;  // 最終報
+                string al_flg = eew.alert_type;           // アラートタイプ (予報、警報)
 
-                float mag;
-                if (!float.TryParse(eew.magunitude, out mag /* マグニチュード */)) mag = float.NaN;
+                float mag = eew.magunitude;
 
-                if (!int.TryParse(eew.depth.Replace("km", ""), out int depth /* 深度 */)) depth = 0;
+                int depth = eew.depth;
 
-                if (!int.TryParse(eew.report_num, out int rpt_no /* 報版 */)) rpt_no = 0;
+                int rpt_no = eew.report_num;
 
-                
+
                 switch (al_flg)
                 {
                     case "警報":
@@ -154,6 +154,8 @@ namespace KyoshinMonitor_EEW_Observer_REV_2
             {
                 goto OnError;
             }
+
+        OnEnd:
 
             label2.Text = dt.ToString("yyyy/MM/dd HH:mm:ss");
             return;
