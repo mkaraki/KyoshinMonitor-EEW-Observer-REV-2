@@ -119,7 +119,11 @@ namespace KyoshinMonitor_EEW_Observer_REV_2
                 var api = await EewHttpClient.GetAsync(url);
 
                 if (api.StatusCode != System.Net.HttpStatusCode.OK)
+                {
+                    Program.LastEewResult = EewResult.None;
+                    WriteInformationToDisplay(GeneralInfoColor, ("受信待機中", "No Data..."));
                     goto OnEnd;
+                }
 
                 var json = await api.Content.ReadAsStringAsync(); //awaitを用いた非同期JSON取得
                 var eew = JsonConvert.DeserializeObject<EEW>(json);//EEWクラスを用いてJSONを解析(デシリアライズ)
@@ -145,11 +149,6 @@ namespace KyoshinMonitor_EEW_Observer_REV_2
                     case "予報":
                         Program.LastEewResult = EewResult.Forecast;
                         WriteInformationToDisplay(ForecastColor, null, $"緊急地震速報(予報) #{rpt_no}{(end_flg ? " 最終" : "")}", reg, intn, mag, depth);
-                        break;
-
-                    case null:
-                        Program.LastEewResult = EewResult.None;
-                        WriteInformationToDisplay(GeneralInfoColor, ("受信待機中", "No Data..."));
                         break;
                 }
             }
